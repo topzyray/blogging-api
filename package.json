@@ -1,0 +1,21 @@
+{
+  "name": "bloggingapi",
+  "version": "1.0.0",
+  "description": "- GET / (Unprotected) ==> Home route to display Bookstore home content\r - GET /login (unprotected) ==> Authenticate a new user, use SSO\r - GET /logout (unprotected) ==> Logout a user",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.3.3",
+    "morgan": "^1.10.0",
+    "morgan-json": "^1.1.0"
+  }
+}
