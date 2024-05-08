@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import passport from 'passport';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import blogRouter from './routes/blog.route.js';

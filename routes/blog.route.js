@@ -12,7 +12,7 @@ import {
   UpdateBlogValidationMW,
 } from '../validators/blog.validator.js';
 
-const blogRouterr = express.Router();
+const blogRouter = express.Router();
 blogRouter.get('/', getAllBlog);
 blogRouter.get('/published', getPublishedBlog);
 blogRouter.get('/published/:id', getPublishedBlogById);
