@@ -1,27 +1,45 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import blogRoute from './routes/blog.route.js';
-import userRoute from './routes/user.route.js';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import blogRouter from './routes/blog.route.js';
+import authRouter from './routes/auth.route.js';
+import errorHandler from './middlewares/errorHandler.js';
+import './middlewares/authenticate.js';
 
 const app = express();
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+  standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+  // store: ... , // Redis, Memcached, etc. See below.
+});
 
 // Middlewares to parse request body
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// Limiter middleware
+app.use(limiter);
+
+// Security middleware
+app.use(helmet());
+
 // Routes
-app.use('/api/v1/blogs', blogRoute);
-app.use('/api/v1/users', userRoute);
+app.use('/api/v1/auth', authRouter);
+app.use(
+  '/api/v1/blogs',
+  passport.authenticate('jwt', { session: false }),
+  blogRouter
+);
+
+app.get('/', (req, res) => {
+  res.send('Welcome to Blogging API');
+});
 
 // Error handler
-app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal Server Error';
-  return res.status(statusCode).json({
-    success: false,
-    error: message,
-    statusCode,
-  });
-});
+app.use(errorHandler);
 
 export default app;

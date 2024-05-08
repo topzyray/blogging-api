@@ -12,12 +12,12 @@ import {
   UpdateBlogValidationMW,
 } from '../validators/blog.validator.js';
 
-const blogRoute = express.Router();
-blogRoute.get('/', getAllBlog);
-blogRoute.get('/published', getPublishedBlog);
-blogRoute.get('/published/:id', getPublishedBlogById);
-blogRoute.post('/', AddBlogValidationMW, addNewBlog);
-blogRoute.put('/:id', UpdateBlogValidationMW, updateBlogById);
-blogRoute.delete('/:id', deleteBlogById);
+const blogRouterr = express.Router();
+blogRouter.get('/', getAllBlog);
+blogRouter.get('/published', getPublishedBlog);
+blogRouter.get('/published/:id', getPublishedBlogById);
+blogRouter.post('/', AddBlogValidationMW, addNewBlog);
+blogRouter.put('/:id', UpdateBlogValidationMW, updateBlogById);
+blogRouter.delete('/:id', deleteBlogById);
 
-export default blogRoute;
+export default blogRouter;
