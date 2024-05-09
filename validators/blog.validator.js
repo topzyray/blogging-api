@@ -1,12 +1,16 @@
-import Joi from 'joi';
+import Joi from "joi";
 
 const BlogAddSchema = Joi.object({
   title: Joi.string().min(3).trim().required(),
   description: Joi.string().min(5).max(500).optional().trim(),
-  author: Joi.object({ id: Joi.string().hex().length(24) }).required(),
+  author: Joi.string().hex().length(24).required().messages({
+    "any.required": "Author ID is required",
+    "string.objectId": "Author ID must be a valid ObjectId",
+  }),
+  // author: Joi.object({ id: Joi.string().hex().length(24) }).required(),
   state: Joi.string().trim(),
-  read_count: Joi.number().integer(),
-  reading_time: Joi.number().integer(),
+  readCount: Joi.number().integer(),
+  readingTime: Joi.number().integer(),
   tags: Joi.array().items(Joi.string()),
   body: Joi.string().min(5).trim().required(),
   timestamp: Joi.date().default(Date.now),
@@ -15,16 +19,16 @@ const BlogAddSchema = Joi.object({
 const BlogUpdateSchema = Joi.object({
   title: Joi.string().min(3).trim(),
   description: Joi.string().min(5).max(500).optional().trim(),
-  author: Joi.object({ id: Joi.string().hex().length(24) }),
+  // author: Joi.object({ id: Joi.string().hex().length(24) }),
   state: Joi.string().trim(),
-  read_count: Joi.number().integer(),
-  reading_time: Joi.number().integer(),
+  readCount: Joi.number().integer(),
+  readingTime: Joi.number().integer(),
   tags: Joi.array().items(Joi.string()),
   body: Joi.string().min(5).trim(),
   timestamp: Joi.date().default(Date.now),
 });
 
-export const AddBlogValidationMW = async (req, res, next) => {
+export const ValidateNewBlogMW = async (req, res, next) => {
   const blogPayload = req.body;
   try {
     await BlogAddSchema.validateAsync(blogPayload);
@@ -37,7 +41,7 @@ export const AddBlogValidationMW = async (req, res, next) => {
   }
 };
 
-export const UpdateBlogValidationMW = async (req, res, next) => {
+export const ValidateBlogUpdateMW = async (req, res, next) => {
   const blogPayload = req.body;
   try {
     await BlogUpdateSchema.validateAsync(blogPayload);

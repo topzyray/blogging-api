@@ -1,23 +1,22 @@
-import express from 'express';
+import express from "express";
+import { authenticate } from "../middlewares/authenticate.js";
 import {
   deleteBlogById,
   addNewBlog,
   getAllBlog,
-  getPublishedBlog,
-  getPublishedBlogById,
   updateBlogById,
-} from '../controllers/blog.controller.js';
+  getBlogById,
+} from "../controllers/blog.controller.js";
 import {
-  AddBlogValidationMW,
-  UpdateBlogValidationMW,
-} from '../validators/blog.validator.js';
+  ValidateBlogUpdateMW,
+  ValidateNewBlogMW,
+} from "../validators/blog.validator.js";
 
 const blogRouter = express.Router();
-blogRouter.get('/', getAllBlog);
-blogRouter.get('/published', getPublishedBlog);
-blogRouter.get('/published/:id', getPublishedBlogById);
-blogRouter.post('/', AddBlogValidationMW, addNewBlog);
-blogRouter.put('/:id', UpdateBlogValidationMW, updateBlogById);
-blogRouter.delete('/:id', deleteBlogById);
+blogRouter.get("/", getAllBlog);
+blogRouter.get("/:id", getBlogById);
+blogRouter.post("/", authenticate, ValidateNewBlogMW, addNewBlog);
+blogRouter.put("/:id", authenticate, ValidateBlogUpdateMW, updateBlogById);
+blogRouter.delete("/:id", authenticate, deleteBlogById);
 
 export default blogRouter;

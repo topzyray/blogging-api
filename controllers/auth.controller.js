@@ -1,48 +1,68 @@
-import passport from 'passport';
-import jwt from 'jsonwebtoken';
-import User from '../models/user.model.js';
-import config from '../config/config.js';
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import User from "../models/user.model.js";
+import config from "../config/config.js";
 
-export const signup = async (req, res) => {
-  res.json({
-    message: 'Signup successful',
-    user: req.user,
-  });
+export const signUp = async (req, res) => {
+  try {
+    const { firstName, lastName, email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (user) return res.status(400).json({ message: "User already exists." });
+
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    await User.create({ firstName, lastName, email, password: hashedPassword });
+    res.status(201).json({ message: "User created successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error." });
+  }
 };
 
-export const signin = async (req, res, next) => {
-  passport.authenticate('login', async (err, user, info) => {
-    try {
-      if (err) {
-        return next(err);
-      }
-      if (!user) {
-        const error = new Error('Username or password is incorrect');
-        return next(error);
-      }
+// export const signIn = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+//     const validUser = await User.findOne({ email });
+//     if (!validUser)
+//       return res.status(400).json({ message: "Invalid email or password." });
+//     const validPassword = bcrypt.compareSync(password, validUser.password);
+//     if (!validPassword)
+//       return res.status(400).json({ message: "Invalid email or password." });
 
-      req.login(user, { session: false }, async (error) => {
-        if (error) return next(error);
+//     const token = jwt.sign({ id: validUser._id }, config.JWT_SECRET, {
+//       expiresIn: "1h",
+//     });
+//     const { password: hashedPassword, ...rest } = validUser._doc;
+//     res
+//       .cookie("access_token", token, { httpOnly: false })
+//       .status(200)
+//       .json({
+//         success: true,
+//         data: {
+//           validUser: rest,
+//         },
+//       });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Server error." });
+//   }
+// };
 
-        const body = { _id: user._id, email: user.email };
-        //ADD EXPIRATION TIME, ONCE EXCEEDED, REFRESH TOKEN IS REQUIRED, AND USER IS LOGGED OUT
-        // OR THE USER NEEDS TO LOGIN AGAIN
-        const token = jwt.sign({ user: body }, process.env.JWT_SECRET, {
-          expiresIn: '1h',
-        });
+export const signIn = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const validUser = await User.findOne({ email });
+    if (!validUser)
+      return res.status(400).json({ message: "Invalid email or password." });
+    const validPassword = bcrypt.compareSync(password, validUser.password);
+    if (!validPassword)
+      return res.status(400).json({ message: "Invalid email or password." });
 
-        return res.json({ token });
-      });
-    } catch (error) {
-      return next(error);
-    }
-  })(req, res, next);
-};
-
-export const update = (req, res) => {
-  res.send('Update user route');
-};
-
-export const logout = (req, res) => {
-  res.send('Logout user route');
+    const token = jwt.sign({ id: validUser._id }, config.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    res.json({ token });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error." });
+  }
 };

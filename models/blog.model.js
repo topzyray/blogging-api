@@ -1,10 +1,10 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from "mongoose";
 
 const blogSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: [true, 'Blog title is required'],
-    unique: [true, 'Blog title is unique'],
+    required: [true, "Blog title is required"],
+    unique: [true, "Blog title is unique"],
   },
   description: {
     type: String,
@@ -14,24 +14,25 @@ const blogSchema = new mongoose.Schema({
   },
   author: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
+    required: true,
   },
   state: {
     type: String,
-    enum: ['draft', 'published'],
-    default: 'draft',
+    enum: ["draft", "published"],
+    default: "draft",
   },
-  read_count: {
+  readCount: {
     type: Number,
     default: 0,
   },
-  reading_time: {
+  readingTime: {
     type: Number,
     default: 0,
   },
   body: {
     type: String,
-    required: [true, 'Body is required'],
+    required: [true, "Body is required"],
   },
   timestamp: {
     type: Date,
@@ -39,6 +40,6 @@ const blogSchema = new mongoose.Schema({
   },
 });
 
-const Blog = mongoose.model('Blog', blogSchema);
+const Blog = mongoose.model("Blog", blogSchema);
 
 export default Blog;

@@ -1,8 +1,8 @@
-import Joi from 'joi';
+import Joi from "joi";
 
 const UserAddSchema = Joi.object({
-  first_name: Joi.string().min(3).trim().required(),
-  last_name: Joi.string().min(3).trim().required(),
+  firstName: Joi.string().min(3).trim().required(),
+  lastName: Joi.string().min(3).trim().required(),
   email: Joi.string().email().required(),
   password: Joi.string()
     .pattern(
@@ -11,16 +11,21 @@ const UserAddSchema = Joi.object({
     .required(),
 });
 
+const UserLoginSchema = Joi.object({
+  email: Joi.string().email(),
+  password: Joi.string(),
+});
+
 const UserUpdateSchema = Joi.object({
-  first_name: Joi.string().min(3).trim(),
-  last_name: Joi.string().min(3).trim(),
+  firstName: Joi.string().min(3).trim(),
+  lastName: Joi.string().min(3).trim(),
   email: Joi.string().email(),
   password: Joi.string().pattern(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
   ),
 });
 
-export const AddUserValidationMW = async (req, res, next) => {
+export const ValidateUserSignupMW = async (req, res, next) => {
   const userPayload = req.body;
   try {
     await UserAddSchema.validateAsync(userPayload);
@@ -33,7 +38,20 @@ export const AddUserValidationMW = async (req, res, next) => {
   }
 };
 
-export const UpdateUserValidationMW = async (req, res, next) => {
+export const ValidateUserSigninMW = async (req, res, next) => {
+  const userPayload = req.body;
+  try {
+    await UserLoginSchema.validateAsync(userPayload);
+    next();
+  } catch (err) {
+    next({
+      message: err.details[0].message,
+      status: 400,
+    });
+  }
+};
+
+export const ValidateUserUpdateMW = async (req, res, next) => {
   const userPayload = req.body;
   try {
     await UserUpdateSchema.validateAsync(userPayload);
