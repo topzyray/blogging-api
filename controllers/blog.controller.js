@@ -1,4 +1,5 @@
 import Blog from '../models/blog.model.js';
+import { calculateReadingTime } from '../utils/utils.js';
 
 export const getAllBlog = async (req, res) => {
   try {
@@ -67,12 +68,16 @@ export const addNewBlog = async (req, res) => {
     const { title, description, tags, body } = req.body;
     const author = req.user._id;
 
+    // Calculate reading time for blog
+    let reading_time = calculateReadingTime(body);
+
     const newBlog = await Blog.create({
       title,
       description,
       tags,
       body,
       author,
+      readingTime: reading_time, // This sets the reading time
     });
     // await newBlog.save();
     res
