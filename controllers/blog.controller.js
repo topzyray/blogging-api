@@ -2,6 +2,20 @@ import Blog from "../models/blog.model.js";
 import { calculateReadingTime } from "../utils/utils.js";
 import logger from "../logging/logger.js";
 
+export const getAllByState = async (req, res) => {
+  try {
+    const blog = await Blog.find({});
+    const matchedBlog = blog.filter((blog) => {
+      return blog.author.toString() === req.user._id.toString();
+      // return res.status(403).json({ message: "No blog found for the user" });
+    });
+    res.json(matchedBlog);
+  } catch (error) {
+    logger.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const getAllBlog = async (req, res) => {
   try {
     const {
