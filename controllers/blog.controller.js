@@ -7,7 +7,7 @@ export const getAllBlog = async (req, res) => {
     const {
       page = 1,
       limit = 20,
-      state,
+      state = "published",
       author,
       title,
       tags,
