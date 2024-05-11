@@ -4,7 +4,7 @@ const countWords = (text) => {
 };
 
 // Calculate reading time
-export const calculateReadingTime = () => {
+export const calculateReadingTime = (text) => {
   const wordsPerMinute = 200; // Average reading speed in words per minute
   const wordCount = countWords(text);
   const minutes = wordCount / wordsPerMinute;
