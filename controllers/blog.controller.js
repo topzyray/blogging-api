@@ -48,7 +48,7 @@ export const getAllBlog = async (req, res) => {
 export const getBlogById = async (req, res) => {
   const id = req.params.id;
   try {
-    if (!id) {
+    if (id === undefined) {
       return res.status(400).json({ message: "No Blog Id specified" });
     }
     const blog = await Blog.findById(id).populate(
@@ -95,6 +95,9 @@ export const addNewBlog = async (req, res) => {
 
 export const updateBlogById = async (req, res) => {
   try {
+    if (req.params.id === undefined) {
+      return res.status(400).json({ message: "No Blog Id specified" });
+    }
     const { title, description, tags, body, state } = req.body;
     const blog = await Blog.findById(req.params.id);
 
@@ -120,6 +123,9 @@ export const updateBlogById = async (req, res) => {
 
 export const deleteBlogById = async (req, res) => {
   try {
+    if (req.params.id === undefined) {
+      return res.status(400).json({ message: "No Blog Id specified" });
+    }
     const blog = await Blog.findById(req.params.id);
 
     if (!blog) return res.status(404).json({ message: "Blog not found" });
@@ -128,10 +134,10 @@ export const deleteBlogById = async (req, res) => {
         .status(403)
         .json({ message: "You are not authorized to delete this blog" });
 
-    await blog.remove();
+    await Blog.findByIdAndDelete(blog._id);
     res.json({ message: "Blog deleted successfully" });
   } catch (error) {
-    logger.error(error);
+    logger.error(error.message);
     res.status(500).json({ message: "Server error" });
   }
 };
