@@ -1,14 +1,15 @@
-import mongoose from 'mongoose';
-import config from '../config/config.js';
+import mongoose from "mongoose";
+import config from "../config/config.js";
+import logger from "../logging/logger.js";
 
 const connectToDb = () => {
   mongoose
     .connect(config.DB_URL, {})
     .then((conn) => {
-      console.log('DB Connected Successfully');
+      logger.info("DB Connected Successfully");
     })
     .catch((error) => {
-      console.log(error);
+      logger.error(error);
     });
 };
 

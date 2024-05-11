@@ -1,5 +1,6 @@
-import Blog from '../models/blog.model.js';
-import { calculateReadingTime } from '../utils/utils.js';
+import Blog from "../models/blog.model.js";
+import { calculateReadingTime } from "../utils/utils.js";
+import logger from "../logging/logger.js";
 
 export const getAllBlog = async (req, res) => {
   try {
@@ -15,15 +16,15 @@ export const getAllBlog = async (req, res) => {
     const filter = {};
     if (state) filter.state = state;
     if (author) filter.author = author;
-    if (title) filter.title = { $regex: title, $options: 'i' };
+    if (title) filter.title = { $regex: title, $options: "i" };
     if (tags) filter.tags = { $in: tags };
 
     let sort = {};
     if (orderBy) {
       if (
-        orderBy === 'readCount' ||
-        orderBy === 'readingTime' ||
-        orderBy === 'timestamp'
+        orderBy === "readCount" ||
+        orderBy === "readingTime" ||
+        orderBy === "timestamp"
       ) {
         sort[orderBy] = -1;
       }
@@ -32,34 +33,37 @@ export const getAllBlog = async (req, res) => {
     }
 
     const blogs = await Blog.find(filter)
-      .populate('author', 'firstName lastName')
+      .populate("author", "firstName lastName")
       .sort(sort)
       .skip((page - 1) * limit)
       .limit(limit);
 
     res.json(blogs);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 export const getBlogById = async (req, res) => {
   const id = req.params.id;
   try {
+    if (!id) {
+      return res.status(400).json({ message: "No Blog Id specified" });
+    }
     const blog = await Blog.findById(id).populate(
-      'author',
-      'firstName lastName'
+      "author",
+      "firstName lastName"
     );
-    if (!blog) return res.status(404).json({ message: 'Blog not found' });
+    if (!blog) return res.status(404).json({ message: "Blog not found" });
 
     blog.readCount++;
     blog.save();
 
     res.json(blog);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -82,10 +86,10 @@ export const addNewBlog = async (req, res) => {
     // await newBlog.save();
     res
       .status(201)
-      .json({ message: 'Blog created successfully', blog: newBlog });
+      .json({ message: "Blog created successfully", blog: newBlog });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -94,11 +98,11 @@ export const updateBlogById = async (req, res) => {
     const { title, description, tags, body, state } = req.body;
     const blog = await Blog.findById(req.params.id);
 
-    if (!blog) return res.status(404).json({ message: 'Blog not found' });
+    if (!blog) return res.status(404).json({ message: "Blog not found" });
     if (blog.author.toString() !== req.user._id.toString())
       return res
         .status(403)
-        .json({ message: 'You are not authorized to update this blog' });
+        .json({ message: "You are not authorized to update this blog" });
 
     blog.title = title || blog.title;
     blog.description = description || blog.description;
@@ -107,10 +111,10 @@ export const updateBlogById = async (req, res) => {
     blog.state = state || blog.state;
     await blog.save();
 
-    res.json({ message: 'Blog updated successfully', blog });
+    res.json({ message: "Blog updated successfully", blog });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -118,16 +122,16 @@ export const deleteBlogById = async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
 
-    if (!blog) return res.status(404).json({ message: 'Blog not found' });
+    if (!blog) return res.status(404).json({ message: "Blog not found" });
     if (blog.author.toString() !== req.user._id.toString())
       return res
         .status(403)
-        .json({ message: 'You are not authorized to delete this blog' });
+        .json({ message: "You are not authorized to delete this blog" });
 
     await blog.remove();
-    res.json({ message: 'Blog deleted successfully' });
+    res.json({ message: "Blog deleted successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
